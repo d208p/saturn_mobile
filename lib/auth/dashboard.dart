@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import 'package:saturn_app/models/holding.dart';
+import 'package:saturn_app/models/portfolio_service.dart';
+import 'package:saturn_app/theme/colors.dart';
+import 'package:saturn_app/widgets/app_card.dart';
+import 'package:saturn_app/widgets/async_view.dart';
+import 'package:saturn_app/widgets/bottom_nav_bar.dart';
+import 'package:saturn_app/widgets/stat_tile.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -9,69 +15,100 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final _authService = AuthService();
-  Map<String, dynamic>? _userData;
-  bool _isLoading = true;
+  final _service = PortfolioService();
+  late Future<PortfolioData> _future;
 
   @override
   void initState() {
     super.initState();
-    _fetchUser();
+    _future = _service.getPortfolio();
   }
 
-  void _fetchUser() async {
-    final data = await _authService.getUser();
-    setState(() {
-      _userData = data;
-      _isLoading = false;
-    });
-  }
-
-  void _handleLogout() async {
-  await _authService.logout();
-  if (mounted) {
-    // Clear route history and direct to WelcomeScreen
-    Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
-  }
-}
+  void _reload() => setState(() => _future = _service.getPortfolio());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Saturn Dashboard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _handleLogout,
+      appBar: AppBar(title: const Text('Dashboard')),
+      bottomNavigationBar: const SaturnBottomNav(currentIndex: 0),
+      body: RefreshIndicator(
+        onRefresh: () async => _reload(),
+        color: AppColors.gold,
+        child: AsyncView<PortfolioData>(
+          future: _future,
+          onRetry: _reload,
+          builder: (context, data) => ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              const Text('Total portfolio value', style: TextStyle(color: AppColors.slate, fontSize: 13)),
+              const SizedBox(height: 4),
+              Text(
+                '€${data.portfolioValue.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.ivory),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(child: StatTile(label: 'Invested', value: '€${data.investedTotal.toStringAsFixed(2)}')),
+                  const SizedBox(width: 12),
+                  Expanded(child: StatTile(label: 'Available cash', value: '€${data.availableCash.toStringAsFixed(2)}')),
+                ],
+              ),
+              const SizedBox(height: 24),
+              const Text('Your holdings', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.ivory)),
+              const SizedBox(height: 12),
+              if (data.holdings.isEmpty)
+                const AppCard(child: Text("You don't own any positions yet.", style: TextStyle(color: AppColors.slate)))
+              else
+                AppCard(
+                  child: Column(
+                    children: [for (final h in data.holdings) _HoldingRow(holding: h)],
+                  ),
+                ),
+              const SizedBox(height: 24),
+              AppCard(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(child: Text('Explore the market', style: TextStyle(fontWeight: FontWeight.w700))),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushReplacementNamed(context, '/market'),
+                      child: const Text('Market'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HoldingRow extends StatelessWidget {
+  const _HoldingRow({required this.holding});
+  final Holding holding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(holding.asset?.title ?? 'Unknown asset', style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(holding.asset?.category ?? '', style: const TextStyle(color: AppColors.slate, fontSize: 12)),
+              ],
+            ),
+          ),
+          Text('€${holding.currentValue.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w700)),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _userData != null
-              ? Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Welcome, ${_userData!['name']}',
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text('Email: ${_userData!['email']}'),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Status: Authenticated via Sanctum API Token',
-                        style: TextStyle(color: Colors.green),
-                      ),
-                    ],
-                  ),
-                )
-              : const Center(
-                  child: Text('Failed to load user data. Unauthenticated.'),
-                ),
     );
   }
 }
