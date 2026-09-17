@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:saturn_app/auth/account.dart';
+import 'package:saturn_app/auth/asset_detail.dart';
+import 'package:saturn_app/auth/create_listing.dart';
 import 'package:saturn_app/auth/dashboard.dart';
+import 'package:saturn_app/auth/income.dart';
 import 'package:saturn_app/auth/login.dart';
 import 'package:saturn_app/auth/market.dart';
 import 'package:saturn_app/auth/portfolio.dart';
 import 'package:saturn_app/auth/register.dart';
+import 'package:saturn_app/auth/secondary_asset.dart';
+import 'package:saturn_app/auth/trade.dart';
 import 'package:saturn_app/services/auth_service.dart';
 import 'package:saturn_app/theme/colors.dart';
 import 'package:saturn_app/welcome.dart';
@@ -37,16 +43,8 @@ class SaturnApp extends StatelessWidget {
               subtitle: 'Send ActivityController + the activity Blade view and this gets wired up next.',
               bottomNav: SaturnBottomNav(currentIndex: 3),
             ),
-        '/account': (context) => const PlaceholderScreen(
-              title: 'Account',
-              subtitle: 'AccountController already exists on the backend — send its Blade view and '
-                  'this becomes Profile / Verification / Bank / Security / Documents tabs.',
-              bottomNav: SaturnBottomNav(currentIndex: 4),
-            ),
-        '/income': (context) => const PlaceholderScreen(
-              title: 'Income',
-              subtitle: 'Send IncomeController + the income Blade view to wire this up.',
-            ),
+        '/account': (context) => const AccountScreen(),
+        '/income': (context) => const IncomeScreen()
       },
       // Routes that need an argument (an asset id) go through
       // onGenerateRoute instead of the simple `routes` map, which only
@@ -56,40 +54,48 @@ class SaturnApp extends StatelessWidget {
 
         switch (settings.name) {
           case '/asset':
+            if (id == null) {
+              return MaterialPageRoute(
+                builder: (_) => const Scaffold(
+                  body: Center(child: Text('Invalid Asset ID')),
+                ),
+              );
+            }
             return MaterialPageRoute(
-              builder: (_) => PlaceholderScreen(
-                title: 'Asset',
-                subtitle: id != null
-                    ? 'Asset #$id — send AssetController + asset.blade.php to build this out.'
-                    : 'Send AssetController + asset.blade.php to build this out.',
-              ),
+              builder: (_) => AssetDetailScreen(assetId: id),
             );
           case '/trade':
+            if (id == null) {
+              return MaterialPageRoute(
+                builder: (_) => const Scaffold(
+                  body: Center(child: Text('Invalid Asset ID')),
+                ),
+              );
+            }
             return MaterialPageRoute(
-              builder: (_) => PlaceholderScreen(
-                title: 'Trade',
-                subtitle: id != null
-                    ? 'Trading asset #$id — send TradeController + trade.blade.php to build this out.'
-                    : 'Send TradeController + trade.blade.php to build this out.',
-              ),
+              builder: (_) => TradeScreen(assetId: id)
             );
           case '/secondary-asset':
+            if (id == null) {
+              return MaterialPageRoute(
+                builder: (_) => const Scaffold(
+                  body: Center(child: Text('Invalid Asset ID')),
+                ),
+              );
+            }
             return MaterialPageRoute(
-              builder: (_) => PlaceholderScreen(
-                title: 'Secondary Market',
-                subtitle: id != null
-                    ? 'Listings for asset #$id — send SecondaryMarketController to build this out.'
-                    : 'Send SecondaryMarketController to build this out.',
-              ),
+              builder: (_) => SecondaryAssetScreen(assetId: id)
             );
           case '/listing-create':
+            if (id == null) {
+              return MaterialPageRoute(
+                builder: (_) => const Scaffold(
+                  body: Center(child: Text('Invalid Asset ID')),
+                ),
+              );
+            }
             return MaterialPageRoute(
-              builder: (_) => PlaceholderScreen(
-                title: 'List for Sale',
-                subtitle: id != null
-                    ? 'Listing asset #$id for sale — send ListingController to build this out.'
-                    : 'Send ListingController to build this out.',
-              ),
+              builder: (_) => CreateListingScreen(assetId: id)
             );
           default:
             return null;

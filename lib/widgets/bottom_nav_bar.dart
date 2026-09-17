@@ -11,7 +11,7 @@ class SaturnBottomNav extends StatelessWidget {
 
   final int currentIndex; // 0 dashboard, 1 market, 2 portfolio, 3 activity, 4 account
 
-  static const _routes = ['/dashboard', '/market', '/portfolio', '/activity', '/account'];
+  static const _routes = ['/dashboard', '/market', '/portfolio', '/income', '/account'];
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class SaturnBottomNav extends StatelessWidget {
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.storefront_outlined), activeIcon: Icon(Icons.storefront), label: 'Market'),
         BottomNavigationBarItem(icon: Icon(Icons.pie_chart_outline), activeIcon: Icon(Icons.pie_chart), label: 'Portfolio'),
-        BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long), label: 'Activity'),
+        BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long), label: 'Income'),
         BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Profile'),
       ],
     );

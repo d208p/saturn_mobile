@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saturn_app/models/holding.dart';
-import 'package:saturn_app/models/portfolio_service.dart';
+import 'package:saturn_app/services/portfolio_service.dart';
 import 'package:saturn_app/theme/colors.dart';
 import 'package:saturn_app/widgets/app_card.dart';
 import 'package:saturn_app/widgets/async_view.dart';

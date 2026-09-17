@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saturn_app/models/assets.dart';
-import 'package:saturn_app/models/market_service.dart';
+import 'package:saturn_app/services/market_service.dart';
 import 'package:saturn_app/models/sellorder.dart';
 import 'package:saturn_app/theme/colors.dart';
 import 'package:saturn_app/widgets/app_card.dart';
